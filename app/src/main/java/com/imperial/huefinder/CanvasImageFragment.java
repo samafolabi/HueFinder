@@ -1,0 +1,95 @@
+package com.imperial.huefinder;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Collections;
+import java.util.HashSet;
+
+/**
+ * Created by emper on 12/06/2018.
+ */
+
+public class CanvasImageFragment extends android.support.v4.app.Fragment {
+
+    private ImageView canvas;
+    private Button cropButton;
+    public static Bitmap bitmap = null;
+    public static TextView textView;
+
+    public static CanvasImageFragment newInstance() {
+        return new CanvasImageFragment();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_crop, container, false);
+    }
+
+    @Override
+    public void onViewCreated(final View view, Bundle savedInstanceState) {
+        Activity activity = getActivity();
+        textView = (TextView) activity.findViewById(R.id.crop);
+        canvas = (ImageView) activity.findViewById(R.id.cropImage);
+        Intent intent = activity.getIntent();
+        ImageActivity.file = intent.getStringExtra(CameraActivity.globalFile);
+        canvas.setImageURI(Uri.parse(ImageActivity.file));
+
+        canvas.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Bitmap bmp = ((BitmapDrawable) ((ImageView)v).getDrawable()).getBitmap();
+                int x = Math.round(event.getX()), y = Math.round(event.getY());
+                int intColor = bmp.getPixel(x, y);
+                String text = String.format("#%06X", (0xFFFFFF & intColor));
+                Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+
+        /*Activity activity = getActivity();
+        cropButton = (Button) activity.findViewById(R.id.crop);
+        cropButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int xMin = Math.round(Collections.min(canvas.xPoints));
+                int yMin = Math.round(Collections.min(canvas.yPoints));
+                int xMax = Math.round(Collections.max(canvas.xPoints));
+                int yMax = Math.round(Collections.max(canvas.yPoints));
+                Bitmap bmp = BitmapFactory.decodeFile(ImageActivity.file);
+                bitmap = Bitmap.createBitmap(bmp, xMin, yMin, xMax-xMin, yMax-yMin);
+
+                Fragment fragment = new CropImageFragment();
+                FragmentTransaction tran = getFragmentManager().beginTransaction();
+                tran.replace(R.id.imageContainer, fragment);
+                tran.addToBackStack(null);
+                tran.commit();
+            }
+        });
+
+        try {
+            canvas = (CanvasImageView) activity.findViewById(R.id.canvas);
+            Intent intent = activity.getIntent();
+            ImageActivity.file = intent.getStringExtra(CameraActivity.globalFile);
+            canvas.setImageURI(Uri.parse(ImageActivity.file));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+    }
+}
